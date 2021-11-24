@@ -1,6 +1,5 @@
 # Blockchain Developer Bootcamp Final Project
-### Consensys Academy
-### Kaushik Nagaraj
+### Consensys Academy | Kaushik Nagaraj
 
 1. Microdonations (What happens after the donation is made to a charity. Donation is made only if it is used for certain types).
 
