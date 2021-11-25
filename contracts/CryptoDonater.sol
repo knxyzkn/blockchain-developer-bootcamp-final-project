@@ -75,6 +75,7 @@ contract CryptoDonater {
       charityList[_charityAddress].charityAddress
     );
   }
+
   // charity.createCategory("Logistics Costs", 2300, 200).then(function(x) { return x; });
   function createCategory(string memory _catName, uint _catBalance, uint _catNeed)
     public
@@ -85,15 +86,48 @@ contract CryptoDonater {
     return true;
   }
 
+  function getCatList()
+    public
+    returns(uint)
+  {
+    return currentCatId;
+  }
+
   // charity.sendDonation(4, 25).then(function(x) { return x; });
   function sendDonation(uint catId, uint catNeed)
     public
     payable
-    returns(bool completed)
+    returns(bool)
   {
     catList[catId].catBalance+=msg.value;
     catList[catId].catNeed+=catNeed;
     return true;
+  }
+
+  function getCatValues(uint catId)
+    public
+    returns(string memory, uint, uint)
+  {
+    return (catList[catId].catName, catList[catId].catBalance, catList[catId].catNeed);
+  }
+
+  function sendCharity(uint catId)
+    public
+    payable
+    returns(uint)
+  {
+    // if(address(this).balance > value) msg.sender.transfer(value);
+    return catList[catId].catBalance;
+  }
+
+
+  function sendDonationToCharity(uint catId)
+    public
+    payable
+    returns(uint)
+  {
+    // if(address(this).balance > value) msg.sender.transfer(value);
+    return catList[catId].catBalance;
   }
 
 }

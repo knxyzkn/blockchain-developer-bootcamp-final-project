@@ -7,7 +7,7 @@ import getWeb3 from "./getWeb3";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = { contractAddress: null, storageValue: 0, web3: null, accounts: null, contract: null, catList: null, catName: null, catbalance: null, catNeed: null};
 
   componentDidMount = async () => {
     console.log("Component Did Mount")
@@ -23,13 +23,24 @@ class App extends Component {
       const networkId = await web3.eth.net.getId();
       console.log("NETWORK ID", networkId);
 
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
+      // const deployedNetwork = SimpleStorageContract.networks[networkId];
+      // console.log("DEPLOYED NETWORK", deployedNetwork);
+
+      // const instance = new web3.eth.Contract(
+      //   SimpleStorageContract.abi,
+      //   deployedNetwork && deployedNetwork.address,
+      // );
+
+      const deployedNetwork = CryptoDonater.networks[networkId];
       console.log("DEPLOYED NETWORK", deployedNetwork);
 
       const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
+        CryptoDonater.abi,
         deployedNetwork && deployedNetwork.address,
       );
+
+      this.setState({ contractAddress: deployedNetwork.address });
+
       console.log("INSTANCE", instance);
 
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -58,15 +69,31 @@ class App extends Component {
     const { accounts, contract } = this.state;
 
     // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+    // await contract.methods.set(5).send({ from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
+    // const response = await contract.methods.get().call();
+
+
+    // await contract.methods.createCategory("R&D", 200, 300).send({ from: accounts[0] });
+    await contract.methods.sendDonation(2, 20).send({ from: accounts[0], value: 10000000000000000 });
+    // await contract.methods.sendCharity(2).send({from: accounts[0]});
+
+
+    // await contract.methods.sendDonation(2, 20).send({ from: accounts[0], value: 1 });
+
+    // const response = await contract.methods.getCatList().call();
+    // this.setState({ catList: response });
+
+
+
+    const response1 = await contract.methods.getCatValues(2).call();
+    console.log("RESPONSE 1", response1);
 
     console.log("THIS.STATE", this.state);
 
     // Update state with the result.
-    this.setState({ storageValue: response });
+    // this.setState({ storageValue: response });
   };
 
   render() {
