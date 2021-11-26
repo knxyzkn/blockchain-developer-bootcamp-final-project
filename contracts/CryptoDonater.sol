@@ -86,11 +86,11 @@ contract CryptoDonater {
     return true;
   }
 
-  function getCatList()
+  function getCatListLenght()
     public
     returns(uint)
   {
-    return currentCatId;
+    return catList.length;
   }
 
   // charity.sendDonation(4, 25).then(function(x) { return x; });
