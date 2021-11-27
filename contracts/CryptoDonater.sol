@@ -36,7 +36,7 @@ contract CryptoDonater {
   }
 
   // let charity;
-  // CryptoDonater.at("0x0AAa9064D3B5B597a4Ef8Ab5d20f6e00CD5fd177").then(function(x) { charity = x });
+  // CryptoDonater.at("0xA8a51239A735a6BA00d20e282d2A56Eae5439191").then(function(x) { charity = x });
   // charity.createCharity("Fred's Team", "0x160dBbe421aC2A88fc4f1dbAE62D7D6357141a16", 73).then(function(x) { return x; });
 
   function createCharity(string memory _charityName, address _charityAddress, uint _charityNeed)
@@ -76,34 +76,46 @@ contract CryptoDonater {
     );
   }
 
-  // charity.createCategory("Logistics Costs", 2300, 200).then(function(x) { return x; });
-  function createCategory(string memory _catName, uint _catBalance, uint _catNeed)
+  // charity.createCategory("Logistics Costs", 200).then(function(x) { return x; });
+  function createCategory(string memory _catName, uint _catNeed)
     public
-    returns(bool successful)
+    returns(bool)
   {
-    catList.push(Category({catId: currentCatId, catName: _catName, catBalance: 0, catNeed: 0}));
+    catList.push(Category({catId: currentCatId, catName: _catName, catBalance: 0, catNeed: _catNeed}));
     currentCatId++;
     return true;
   }
 
-  function getCatListLenght()
+  // charity.updateCategoryNeed(1, 200).then(function(x) { return x; });
+  function updateCategoryNeed(uint _catId, uint _catNeed)
+    public
+    returns(bool)
+  {
+    catList[_catId].catNeed += _catNeed;
+    return true;
+  }
+
+  // charity.getCatListLength().then(function(x) { return x; });
+  function getCatListLength()
     public
     returns(uint)
   {
     return catList.length;
   }
 
-  // charity.sendDonation(4, 25).then(function(x) { return x; });
-  function sendDonation(uint catId, uint catNeed)
+  // charity.sendDonation(4).then(function(x) { return x; });
+  function sendDonation(uint catId)
     public
     payable
     returns(bool)
   {
     catList[catId].catBalance+=msg.value;
-    catList[catId].catNeed+=catNeed;
+    if(msg.value > catList[catId].catNeed) catList[catId].catNeed = 0;
+    else catList[catId].catNeed-=msg.value;
     return true;
   }
 
+  // charity.getCatValues(2).then(function(x) { return x; });
   function getCatValues(uint catId)
     public
     returns(string memory, uint, uint)
@@ -111,23 +123,7 @@ contract CryptoDonater {
     return (catList[catId].catName, catList[catId].catBalance, catList[catId].catNeed);
   }
 
-  function sendCharity(uint catId)
-    public
-    payable
-    returns(uint)
-  {
-    // if(address(this).balance > value) msg.sender.transfer(value);
-    return catList[catId].catBalance;
-  }
-
-
-  function sendDonationToCharity(uint catId)
-    public
-    payable
-    returns(uint)
-  {
-    // if(address(this).balance > value) msg.sender.transfer(value);
-    return catList[catId].catBalance;
-  }
+  // Future: Send payabale transaction from smart contract to charity org address.
+  // function sendDonationToCharity(uint catId) public payable returns(uint) { }
 
 }

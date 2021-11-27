@@ -9,10 +9,10 @@ class CategoryTable extends Component {
         <Table sx={{ minWidth: 500 }} aria-label="category table">
           <TableHead>
             <TableRow>
-              <TableCell>Index</TableCell>
-              <TableCell align="left">Name</TableCell>
-              <TableCell align="right">Balance (wei)</TableCell>
-              <TableCell align="right">Need (wei)</TableCell>
+              <TableCell style={{fontWeight: 'bold'}}>INDEX</TableCell>
+              <TableCell align="left" style={{fontWeight: 'bold'}}>CATEGORY POOL NAME</TableCell>
+              <TableCell align="right" style={{fontWeight: 'bold'}}>BALANCE (wei)</TableCell>
+              <TableCell align="right" style={{fontWeight: 'bold'}}>NEED (wei)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

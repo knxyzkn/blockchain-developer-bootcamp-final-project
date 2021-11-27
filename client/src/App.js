@@ -1,10 +1,12 @@
+// Requires react 17.x and over for material-ui. Truffle Unbox React install react 16.x.
 import React, { Component } from "react";
 import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import CryptoDonater from "./contracts/CryptoDonater.json";
 import getWeb3 from "./getWeb3";
-import { MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Input, Button, TextField } from '@mui/material';
+import { Typography, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Input, Button, TextField } from '@mui/material';
 import CategoryTable from "./components/CategoryTable.js";
-// Requires react 17.x and over for material-ui. Truffle Unbox React install react 16.x.
+import NotWeb3 from "./components/NotWeb3.js";
+import GeneralSection from "./components/GeneralSection.js";
 
 
 import "./App.css";
@@ -22,7 +24,18 @@ class App extends Component {
     catbalance: null,
     catNeed: null,
     inputCategoryValue: "",
-    inputAmountValue: ""
+    inputCategoryValueError: false,
+    inputAmountValue: "",
+    inputAmountValueError: false,
+    inputCreateCategoryValue: "",
+    inputCreateCategoryValueError: false,
+    inputCreateNeedAmount: "",
+    inputCreateNeedAmountError: false,
+    inputUpdateCategoryValue: "",
+    inputUpdateCategoryValueError: false,
+    inputUpdateNeedAmount: "",
+    inputUpdateNeedAmountError: false
+
   };
 
   componentDidMount = async () => {
@@ -49,8 +62,11 @@ class App extends Component {
 
       console.log("INSTANCE", instance);
 
-      const catListLength = await instance.methods.getCatListLenght().call();
+      // Get the length of the category pool list stored in the smart contract.
+      const catListLength = await instance.methods.getCatListLength().call();
 
+      // Get the details (name, balance, need) of the category pool list.
+      // Iterating off-chain to optimize for gas costs.
       let catList = [];
       for(let i=0; i<catListLength; i++) {
         const catValue = await instance.methods.getCatValues(i).call();
@@ -58,8 +74,7 @@ class App extends Component {
         console.log("CAT VALUE", catValue);
       }
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contracts methods.
+      // Set web3, accounts, contract, category pool list length/details
       this.setState({
         web3,
         accounts,
@@ -69,7 +84,7 @@ class App extends Component {
         catList
       }, this.runExample);
 
-      //Subscribe to all events
+      // Subscribe to all events
       // instance.events.allEvents({
       //   fromBlock: 0,
       //   toBlock: 'latest'
@@ -90,14 +105,19 @@ class App extends Component {
   runExample = async () => {
     const { accounts, contract } = this.state;
 
-    // await contract.methods.sendDonation(0, 20).send({ from: accounts[0], value: 1 });
-    // await contract.methods.createCategory("Research and Development", 200, 300).send({ from: accounts[0] });
+    // await contract.methods.sendDonation(0).send({ from: accounts[0], value: 100 });
+    // await contract.methods.createCategory("Research and Development", 300).send({ from: accounts[0] });
     // const sendCharityReturnValue = await contract.methods.sendCharity(0).send({from: accounts[0], value: 1000000000});
     // console.log("SEND CHARITY RETURN VALUE", sendCharityReturnValue);
     // await contract.methods.sendDonation(2, 20).send({ from: accounts[0], value: 1 });
 
     console.log("THIS.STATE", this.state);
   };
+
+
+  // ---------------------------------------------------------------------------------------------
+  // The functions below are written to handle actions that can be performed in the Donate section of the Dapp.
+  // ---------------------------------------------------------------------------------------------
 
   handleCategoryInputChange(event) {
     console.log("Category Input Clicked", event.target.value);
@@ -111,59 +131,204 @@ class App extends Component {
 
   handleCategoryResetButtonClick(event) {
     console.log("RESET CLICKED", event)
-    this.setState({ inputCategoryValue: "", inputAmountValue: "" });
+    this.setState({
+      inputCategoryValue: "",
+      inputAmountValue: "",
+      inputAmountValueError: false,
+      inputCategoryValueError: false
+    });
   }
 
   handleDonateButtonClick = async (event) => {
-    console.log("DONATE CLICKED", event);
-    let catList = [];
-    await this.state.contract.methods
-    .sendDonation(this.state.inputCategoryValue,this.state.inputAmountValue)
-    .send({ from: this.state.accounts[0], value: this.state.inputAmountValue });
-    for(let i=0; i<this.state.catListLength; i++) {
-      const catValue = await this.state.contract.methods.getCatValues(i).call();
-      catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
-      console.log("CAT VALUE", catValue);
+    try{
+      console.log("DONATE CLICKED", event);
+      console.log(this.state.inputCategoryValue, this.state.inputAmountValue);
+      if(this.state.inputCategoryValue === "")
+        await this.setState({inputCategoryValueError: true});
+      else
+        await this.setState({inputCategoryValueError: false});
+
+      if(this.state.inputAmountValue === "")
+        await this.setState({inputAmountValueError: true});
+      else if(isNaN(this.state.inputAmountValue)) {
+        console.log(isNaN(this.state.inputAmountValue))
+        await this.setState({inputAmountValueError: true});
+      }
+      else
+        await this.setState({inputAmountValueError: false});
+
+      console.log(this.state.inputCategoryValueError, this.state.inputAmountValueError);
+      if(!this.state.inputCategoryValueError && !this.state.inputAmountValueError) {
+        let catList = [];
+        await this.state.contract.methods
+        .sendDonation(this.state.inputCategoryValue)
+        .send({ from: this.state.accounts[0], value: this.state.inputAmountValue })
+        .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}` )});
+        for(let i=0; i<this.state.catListLength; i++) {
+          const catValue = await this.state.contract.methods
+            .getCatValues(i).call()
+            .catch((error) => { console.log("Error1". error)});
+          catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
+          console.log("CAT VALUE", catValue);
+        }
+        this.setState({ inputCategoryValue: "", inputAmountValue: "", catList });
+      }
+    } catch(error) {
+      console.log("ERROR2", error)
     }
-    this.setState({ inputCategoryValue: "", inputAmountValue: "", catList });
   }
+
+  // ---------------------------------------------------------------------------------------------
+  // The functions below are written to handle actions that can be performed in the Create Category Pool section of the Dapp.
+  // ---------------------------------------------------------------------------------------------
+
+    handleCreateCategoryInputChange(event) {
+      console.log("Create Category Input Clicked", event.target.value);
+      this.setState({inputCreateCategoryValue: event.target.value});
+    }
+
+    handleCreateNeedInputChange(event) {
+      console.log("Create Need Input Clicked", event.target.value);
+      this.setState({inputCreateNeedAmount: event.target.value});
+    }
+
+    handleCreateResetButtonClick(event) {
+      console.log("RESET CLICKED in Create Category", event)
+      this.setState({
+        inputCreateCategoryValue: "",
+        inputCreateNeedAmount: "",
+        inputCreateCategoryValueError: false,
+        inputCreateNeedAmountError: false
+      });
+    }
+
+    handleCreateButtonClick = async (event) => {
+      try{
+        console.log("CREATE CLICKED", event);
+        console.log(this.state.inputCreateCategoryValue, this.state.inputCreateNeedAmount);
+        if(this.state.inputCreateCategoryValue === "")
+          await this.setState({inputCreateCategoryValueError: true});
+        else
+          await this.setState({inputCreateCategoryValueError: false});
+
+        if(this.state.inputCreateNeedAmount === "")
+          await this.setState({inputCreateNeedAmountError: true});
+        else if(isNaN(this.state.inputCreateNeedAmount)) {
+          console.log(isNaN(this.state.inputCreateNeedAmount))
+          await this.setState({inputCreateNeedAmountError: true});
+        }
+        else
+          await this.setState({inputCreateNeedAmountError: false});
+
+        console.log(this.state.inputCreateCategoryValueError, this.state.inputCreateNeedAmountError);
+        if(!this.state.inputCreateCategoryValueError && !this.state.inputCreateNeedAmountError) {
+          let catList = [];
+          await this.state.contract.methods
+          .createCategory(this.state.inputCreateCategoryValue, this.state.inputCreateNeedAmount)
+          .send({ from: this.state.accounts[0] })
+          .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}`)});
+          const catListLength = await this.state.contract.methods.getCatListLength().call();
+          for(let i=0; i<catListLength; i++) {
+            const catValue = await this.state.contract.methods
+              .getCatValues(i).call()
+              .catch((error) => { console.log("Error1". error)});
+            catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
+            console.log("CAT VALUE", catValue);
+          }
+          this.setState({ inputCreateCategoryValue: "", inputCreateNeedAmount: "", catList, catListLength });
+        }
+      } catch(error) {
+          console.log("ERROR2", error)
+      }
+    }
+
+
+
+  // ---------------------------------------------------------------------------------------------
+  // The functions below are written to handle actions that can be performed in the Update Need for Category Pool section of the Dapp.
+  // ---------------------------------------------------------------------------------------------
+
+    handleUpdateCategoryInputChange(event) {
+      console.log("Update Category Input Clicked", event.target.value);
+      this.setState({inputUpdateCategoryValue: event.target.value});
+    }
+
+    handleUpdateNeedInputChange(event) {
+      console.log("Update Need Input Clicked", event.target.value);
+      this.setState({inputUpdateNeedAmount: event.target.value});
+    }
+
+    handleUpdateResetButtonClick(event) {
+      console.log("RESET CLICKED in Update Category", event)
+      this.setState({
+        inputUpdateCategoryValue: "",
+        inputUpdateNeedAmount: "",
+        inputUpdateCategoryValueError: false,
+        inputUpdateNeedAmountError: false
+      });
+    }
+
+    handleUpdateButtonClick = async (event) => {
+      try{
+        console.log("Update CLICKED", event);
+        console.log(this.state.inputUpdateCategoryValue, this.state.inputUpdateNeedAmount);
+        if(this.state.inputUpdateCategoryValue === "")
+          await this.setState({inputUpdateCategoryValueError: true});
+        else
+          await this.setState({inputUpdateNeedAmountError: false});
+
+        if(this.state.inputUpdateNeedAmount === "")
+          await this.setState({inputUpdateNeedAmountError: true});
+        else if(isNaN(this.state.inputUpdateNeedAmount)) {
+          console.log(isNaN(this.state.inputUpdateNeedAmount))
+          await this.setState({inputUpdateNeedAmountError: true});
+        }
+        else
+          await this.setState({inputUpdateNeedAmountError: false});
+
+        console.log(this.state.inputUpdateCategoryValueError, this.state.inputUpdateNeedAmountError);
+        if(!this.state.inputUpdateCategoryValueError && !this.state.inputUpdateNeedAmountError) {
+          let catList = [];
+          await this.state.contract.methods
+          .updateCategoryNeed(this.state.inputUpdateCategoryValue, this.state.inputUpdateNeedAmount)
+          .send({ from: this.state.accounts[0] })
+          .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}`)});
+          const catListLength = await this.state.contract.methods.getCatListLength().call();
+          for(let i=0; i<catListLength; i++) {
+            const catValue = await this.state.contract.methods
+              .getCatValues(i).call()
+              .catch((error) => { console.log("Error1". error)});
+            catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
+            console.log("CAT VALUE", catValue);
+          }
+          this.setState({ inputUpdateCategoryValue: "", inputUpdateNeedAmount: "", catList, catListLength });
+        }
+      } catch(error) {
+          console.log("ERROR2", error)
+      }
+    }
+
+
 
   render() {
     if (!this.state.web3) {
-      return <div>Welcome to Crypto Donater! Please login to your Metamask wallet and connect your account on the Rinkeby Test Network. </div>;
+      return <NotWeb3/>
     }
     return (
       <div className="App">
         <h1>Crypto Donater</h1>
-        <div>Donors can donate crypto to category pools held in the smart contract.</div>
-        <div>Charity organizations can transfer funds from the smart contract to their charity org address when the need arises.</div>
-        <div>If the balance of a category pool is in sufficent, then charity orgs can set current needs so that donors can donate to category pools accordingly.</div>
+        <GeneralSection
+          contractAddress={this.state.contractAddress}
+          accounts={this.state.accounts}
+        />
 
         <hr style={{margin: '3vw'}}/>
 
         <h2>Donor</h2>
-        <div>
-          <TextField
-           id="read-only-connected-account"
-           label="Connected Account (Read Only)"
-           defaultValue={this.state.accounts[0]}
-           InputProps={{
-             readOnly: true,
-           }}
-           style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px', width: '90vw'}}
-         />
-        </div>
-        <div>
-          <TextField
-           id="read-only-connected-account"
-           label="Contract Address (Read Only)"
-           defaultValue={this.state.contractAddress}
-           InputProps={{
-             readOnly: true,
-           }}
-           style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px', width: '90vw'}}
-         />
-        </div>
+
+        <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+          Please review the category pools, balances, and need below.
+        </Typography>
 
         <div>
           {
@@ -172,24 +337,24 @@ class App extends Component {
               <CategoryTable catList={this.state.catList}/>
             </div>
             :
-            <div>
-              No categories yet.
-            </div>
+            <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+              No category pools yet.
+            </Typography>
           }
         </div>
 
         <div>
-          <div
-            style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
-          >
-            Enter the index number below to select the catagory and donate crypto.
-          </div>
+          <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values.
+          </Typography>
           <TextField
             id="select-category"
             select
-            label="Select"
+            label="Select Category Pool"
+            required
             value={this.state.inputCategoryValue}
-            helperText="Please select category"
+            helperText={this.state.inputCategoryValueError ? "This is a required field" : "Please select category pool"}
+            error={this.state.inputCategoryValueError}
             onChange={this.handleCategoryInputChange.bind(this)}
             size="small"
             style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
@@ -204,10 +369,12 @@ class App extends Component {
           <div>
             <TextField
               id="enter-amount"
-              label="Outlined"
+              label="Amount"
               variant="outlined"
+              required
               value={this.state.inputAmountValue}
-              helperText="Please enter amount (wei)"
+              helperText={this.state.inputAmountValueError ? "This is a required number field" : "Please enter amount (wei)"}
+              error={this.state.inputAmountValueError}
               onChange={this.handleAmountInputChange.bind(this)}
               size="small"
               style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
@@ -215,18 +382,119 @@ class App extends Component {
           </div>
 
           <div>
-            <Button size="small" variant="outlined"
+            <Button size="small" variant="contained" disableElevation
+                onClick={this.handleDonateButtonClick.bind(this)}
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >DONATE</Button>
+            <Button size="small" variant="outlined" disableElevation
               onClick={this.handleCategoryResetButtonClick.bind(this)}
+              style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
             >RESET</Button>
-            <Button size="small" variant="outlined"
-              onClick={this.handleDonateButtonClick.bind(this)}
-            >DONATE</Button>
+          </div>
+        </div>
+
+        <hr style={{margin: '3vw'}}/>
+
+        <h2>Charity Organization</h2>
+        <Typography align="left" style={{backgroundColor: 'lightgrey', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+          [Future Development]: Charity organization can initiate a transaction to transfer funds from the category pools to their respective org's address.
+        </Typography>
+
+        <div>
+          <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+            If you wish to create a new category pool, please submit the form below. Click 'Create Category Pool' to initiate a transaction. Once the transaction is complete, please check the category pool table above for  updated values.
+          </Typography>
+          <div>
+            <div>
+              <TextField
+                id="enter-category"
+                label="Category Pool Name"
+                variant="outlined"
+                required
+                value={this.state.inputCreateCategoryValue}
+                helperText={this.state.inputCreateCategoryValueError ? "This is a required field" : "Please enter name of category pool"}
+                error={this.state.inputCreateCategoryValueError}
+                onChange={this.handleCreateCategoryInputChange.bind(this)}
+                size="small"
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              />
+              <TextField
+                id="enter-need"
+                label="Category Pool Need"
+                variant="outlined"
+                required
+                value={this.state.inputCreateNeedAmount}
+                helperText={this.state.inputCreateNeedAmountError ? "This is a required number field" : "Please enter need amount (wei)"}
+                error={this.state.inputCreateNeedAmountError}
+                onChange={this.handleCreateNeedInputChange.bind(this)}
+                size="small"
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              />
+            </div>
+            <div>
+              <Button size="small" variant="contained" disableElevation
+                  onClick={this.handleCreateButtonClick.bind(this)}
+                  style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >CREATE CATEGORY POOL</Button>
+              <Button size="small" variant="outlined" disableElevation
+                onClick={this.handleCreateResetButtonClick.bind(this)}
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >RESET</Button>
+            </div>
           </div>
         </div>
 
 
-          <hr style={{margin: '3vw'}}/>
-        <h2>Charity Organization</h2>
+        <div>
+          <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+            If you wish to submit additional need for one of the existing category pools, please submit the form below. Click 'Update Category Need' to initiate a transaction. Once the transaction is complete, please check the category pool table above for the updated values. The need total will be incremented by the value you entered here.
+          </Typography>
+          <div>
+            <div>
+              <TextField
+                id="select-category"
+                select
+                label="Select Category Pool"
+                required
+                value={this.state.inputUpdateCategoryValue}
+                helperText={this.state.inputUpdateCategoryValueError ? "This is a required field" : "Please select category pool"}
+                error={this.state.inputUpdateCategoryValueError}
+                onChange={this.handleUpdateCategoryInputChange.bind(this)}
+                size="small"
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >
+                {this.state.catList.map((item, index) => (
+                  <MenuItem key={index} value={index}>
+                    {index} {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                id="enter-need"
+                label="Additional Category Pool Need"
+                variant="outlined"
+                required
+                value={this.state.inputUpdateNeedAmount}
+                helperText={this.state.inputUpdateNeedAmountError ? "This is a required number field" : "Please enter need amount (wei)"}
+                error={this.state.inputUpdateNeedAmountError}
+                onChange={this.handleUpdateNeedInputChange.bind(this)}
+                size="small"
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              />
+            </div>
+            <div>
+              <Button size="small" variant="contained" disableElevation
+                  onClick={this.handleUpdateButtonClick.bind(this)}
+                  style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >UPDATE CATEGORY NEED</Button>
+              <Button size="small" variant="outlined" disableElevation
+                onClick={this.handleUpdateResetButtonClick.bind(this)}
+                style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+              >RESET</Button>
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   }
