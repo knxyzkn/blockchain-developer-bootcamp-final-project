@@ -1,13 +1,12 @@
 // Requires react 17.x and over for material-ui. Truffle Unbox React install react 16.x.
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import CryptoDonater from "./contracts/CryptoDonater.json";
 import getWeb3 from "./getWeb3";
-import { Typography, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Input, Button, TextField } from '@mui/material';
+import { Typography, MenuItem, Button, TextField } from '@mui/material';
 import CategoryTable from "./components/CategoryTable.js";
 import NotWeb3 from "./components/NotWeb3.js";
 import GeneralSection from "./components/GeneralSection.js";
-
+import Bottom from "./components/Bottom.js";
 
 import "./App.css";
 
@@ -117,6 +116,7 @@ class App extends Component {
 
   // ---------------------------------------------------------------------------------------------
   // The functions below are written to handle actions that can be performed in the Donate section of the Dapp.
+  // Pending code refactoring.
   // ---------------------------------------------------------------------------------------------
 
   handleCategoryInputChange(event) {
@@ -166,8 +166,9 @@ class App extends Component {
         .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}` )});
         for(let i=0; i<this.state.catListLength; i++) {
           const catValue = await this.state.contract.methods
-            .getCatValues(i).call()
-            .catch((error) => { console.log("Error1". error)});
+          .getCatValues(i)
+          .call()
+          .catch((error) => { console.log("Error", error) });
           catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
           console.log("CAT VALUE", catValue);
         }
@@ -180,6 +181,7 @@ class App extends Component {
 
   // ---------------------------------------------------------------------------------------------
   // The functions below are written to handle actions that can be performed in the Create Category Pool section of the Dapp.
+  // Pending code refactoring.
   // ---------------------------------------------------------------------------------------------
 
     handleCreateCategoryInputChange(event) {
@@ -230,8 +232,9 @@ class App extends Component {
           const catListLength = await this.state.contract.methods.getCatListLength().call();
           for(let i=0; i<catListLength; i++) {
             const catValue = await this.state.contract.methods
-              .getCatValues(i).call()
-              .catch((error) => { console.log("Error1". error)});
+              .getCatValues(i)
+              .call()
+              .catch((error) => { console.log("Error", error)});
             catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
             console.log("CAT VALUE", catValue);
           }
@@ -246,6 +249,7 @@ class App extends Component {
 
   // ---------------------------------------------------------------------------------------------
   // The functions below are written to handle actions that can be performed in the Update Need for Category Pool section of the Dapp.
+  // Pending code refactoring.
   // ---------------------------------------------------------------------------------------------
 
     handleUpdateCategoryInputChange(event) {
@@ -296,8 +300,9 @@ class App extends Component {
           const catListLength = await this.state.contract.methods.getCatListLength().call();
           for(let i=0; i<catListLength; i++) {
             const catValue = await this.state.contract.methods
-              .getCatValues(i).call()
-              .catch((error) => { console.log("Error1". error)});
+              .getCatValues(i)
+              .call()
+              .catch((error) => { console.log("Error", error)});
             catList.push({name: catValue[0], balance: catValue[1], need: catValue[2]});
             console.log("CAT VALUE", catValue);
           }
@@ -324,7 +329,7 @@ class App extends Component {
 
         <hr style={{margin: '3vw'}}/>
 
-        <h2>Donor</h2>
+        <h2>Category Pool Table</h2>
 
         <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
           Please review the category pools, balances, and need below.
@@ -343,28 +348,35 @@ class App extends Component {
           }
         </div>
 
+        <hr style={{margin: '3vw'}}/>
+
+        <h2>Donor</h2>
+
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values.
+            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. 'Balance' will be incremented and 'Need' will be decremented.
           </Typography>
-          <TextField
-            id="select-category"
-            select
-            label="Select Category Pool"
-            required
-            value={this.state.inputCategoryValue}
-            helperText={this.state.inputCategoryValueError ? "This is a required field" : "Please select category pool"}
-            error={this.state.inputCategoryValueError}
-            onChange={this.handleCategoryInputChange.bind(this)}
-            size="small"
-            style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
-          >
-            {this.state.catList.map((item, index) => (
-              <MenuItem key={index} value={index}>
-                {index} {item.name}
-              </MenuItem>
-            ))}
-          </TextField>
+
+          <div>
+            <TextField
+              id="select-category"
+              select
+              label="Select Category Pool"
+              required
+              value={this.state.inputCategoryValue}
+              helperText={this.state.inputCategoryValueError ? "This is a required field" : "Please select category pool"}
+              error={this.state.inputCategoryValueError}
+              onChange={this.handleCategoryInputChange.bind(this)}
+              size="small"
+              style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+            >
+              {this.state.catList.map((item, index) => (
+                <MenuItem key={index} value={index}>
+                  {index} {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
 
           <div>
             <TextField
@@ -396,13 +408,13 @@ class App extends Component {
         <hr style={{margin: '3vw'}}/>
 
         <h2>Charity Organization</h2>
-        <Typography align="left" style={{backgroundColor: 'lightgrey', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+        <Typography align="left" style={{backgroundColor: '#ECECEC', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
           [Future Development]: Charity organization can initiate a transaction to transfer funds from the category pools to their respective org's address.
         </Typography>
 
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-            If you wish to create a new category pool, please submit the form below. Click 'Create Category Pool' to initiate a transaction. Once the transaction is complete, please check the category pool table above for  updated values.
+            If you wish to create a new category pool, please submit the form below. Click 'Create Category Pool' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. A new category will be created, its 'Balance' will be set to 0, and its 'Need' will be updated.
           </Typography>
           <div>
             <div>
@@ -447,7 +459,7 @@ class App extends Component {
 
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-            If you wish to submit additional need for one of the existing category pools, please submit the form below. Click 'Update Category Need' to initiate a transaction. Once the transaction is complete, please check the category pool table above for the updated values. The need total will be incremented by the value you entered here.
+            If you wish to submit additional need for one of the existing category pools, please submit the form below. Click 'Update Category Need' to initiate a transaction. Once the transaction is complete, please check the category pool table above for the updated values. 'Need' total will be incremented by the value you entered here.
           </Typography>
           <div>
             <div>
@@ -494,6 +506,8 @@ class App extends Component {
             </div>
           </div>
         </div>
+
+        <Bottom/>
 
       </div>
     );

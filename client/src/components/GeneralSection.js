@@ -1,8 +1,16 @@
 import React, { Component } from "react";
-import { Typography, MenuItem, Button, TextField } from '@mui/material';
+import { Typography, TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 class GeneralSection extends Component {
   render() {
+    const StyledTextFieldAccount = styled(TextField)({
+      '& input + fieldset': {
+        borderColor: '#42a5f5',
+        borderWidth: 2,
+      }
+    });
+
     return (
       <div>
         <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
@@ -12,7 +20,7 @@ class GeneralSection extends Component {
           Charity organizations can transfer funds from the smart contract to their charity org address when the need arises.
         </Typography>
         <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-          If the balance of a category pool is in sufficent, then charity orgs can set current needs so that donors can donate to category pools accordingly.
+          If the balance of a category pool is insufficent, then charity orgs can update need so that donors can donate to category pools accordingly.
         </Typography>
         <div>
           <TextField
@@ -26,14 +34,14 @@ class GeneralSection extends Component {
          />
         </div>
         <div>
-          <TextField
+          <StyledTextFieldAccount
            id="read-only-connected-account"
            label="Connected Account (Read Only)"
            defaultValue={this.props.accounts[0]}
            InputProps={{
              readOnly: true,
            }}
-           style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px', width: '90vw'}}
+           style={{ marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px', width: '90vw'}}
          />
         </div>
       </div>
