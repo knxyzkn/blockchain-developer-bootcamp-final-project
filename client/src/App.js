@@ -8,12 +8,13 @@ import NotWeb3 from "./components/NotWeb3.js";
 import GeneralSection from "./components/GeneralSection.js";
 import Bottom from "./components/Bottom.js";
 
+import Web3 from "web3";
+
 import "./App.css";
 
 class App extends Component {
   state = {
     contractAddress: null,
-    storageValue: 0,
     catListLength: null,
     web3: null,
     accounts: null,
@@ -33,14 +34,25 @@ class App extends Component {
     inputUpdateCategoryValue: "",
     inputUpdateCategoryValueError: false,
     inputUpdateNeedAmount: "",
-    inputUpdateNeedAmountError: false
-
+    inputUpdateNeedAmountError: false,
+    usd: null
   };
 
   componentDidMount = async () => {
     console.log("Component Did Mount")
 
     try {
+
+      const web3oracle = new Web3("https://kovan.infura.io/v3/61666a4908b1429ca998ea7bd985a362")
+      const aggregatorV3InterfaceABI = [{ "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]
+      const addr = "0x9326BFA02ADD2366b30bacB125260Af641031331"
+      const priceFeed = new web3oracle.eth.Contract(aggregatorV3InterfaceABI, addr)
+      priceFeed.methods.latestRoundData().call()
+          .then((roundData) => {
+              this.setState({usd: roundData.answer/100000000});
+              console.log("Latest Round Data", roundData.answer/100000000)
+          })
+
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
 
@@ -95,7 +107,7 @@ class App extends Component {
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+        `Failed to load web3, accounts, or contract. Please ensure you have logged into you Metamask wallet and connected your account on the Rinkeby Test Network. You can do this by refreshing your page.`,
       );
       console.error(error);
     }
@@ -314,7 +326,6 @@ class App extends Component {
     }
 
 
-
   render() {
     if (!this.state.web3) {
       return <NotWeb3/>
@@ -354,7 +365,7 @@ class App extends Component {
 
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. 'Balance' will be incremented and 'Need' will be decremented.
+            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. 'Balance' will be incremented and 'Need' will be decremented. USD conversion rate is obtained in real-time from Chainlink data feeds.
           </Typography>
 
           <div>
@@ -388,6 +399,17 @@ class App extends Component {
               helperText={this.state.inputAmountValueError ? "This is a required number field" : "Please enter amount (wei)"}
               error={this.state.inputAmountValueError}
               onChange={this.handleAmountInputChange.bind(this)}
+              size="small"
+              style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
+            />
+            <TextField
+              id="enter-amount"
+              label="Amount in USD"
+              variant="outlined"
+              required
+              disabled
+              value={(Math.round(this.state.inputAmountValue*this.state.usd/Math.pow(10,18) * 100) / 100).toFixed(2)}
+              helperText={`1 Ether = USD ${this.state.usd}`}
               size="small"
               style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
             />

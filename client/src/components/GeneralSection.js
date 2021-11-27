@@ -38,6 +38,7 @@ class GeneralSection extends Component {
            id="read-only-connected-account"
            label="Connected Account (Read Only)"
            defaultValue={this.props.accounts[0]}
+           helperText="You can disconnect this account by opening Metamask. After that, please refresh this page."
            InputProps={{
              readOnly: true,
            }}
