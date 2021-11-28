@@ -13,7 +13,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 /// @notice 6. Obtain the details (id, name, balance, need) of a given category pool
 /// @dev Once the contract is compile and deployed, use the following to run functions from command line
 /// @dev 1. let charity;
-/// @dev 2. CryptoDonater.at("<Deployed Contract Address").then(function(x) { charity = x });
+/// @dev 2. CryptoDonater.at("0xA8a51239A735a6BA00d20e282d2A56Eae5439191").then(function(x) { charity = x });
 /// @dev 3. Then run the corresponding command for function of your choice (see @dev for each function below)
 
 contract CryptoDonater {
@@ -54,6 +54,11 @@ contract CryptoDonater {
   /// @notice Interface declaration for Chainlink data feeds
   AggregatorV3Interface internal priceFeed;
 
+  /// @notice Create events to be emitted whenever there are state changes
+  event LogCreateCategory(string message, uint catId, string catName, uint catBalance, uint catNeed);
+  event LogNeedUpdated(string message, uint catId, string catName, uint catBalance, uint catNeed);
+  event LogDonation(string message, uint catId, string catName, uint catBalance, uint catNeed);
+
   /// @notice Initializes ID and Chainlink pricefeed
   constructor() public {
     currentCatId = catList.length;
@@ -62,10 +67,10 @@ contract CryptoDonater {
 
   /// @notice Get the Ether to USD conversion price from Chainlink data feeds
   /// @notice Could not get this function to work
-  /// @notice So I have used Chainlink data feeds from Web3.js on the front-end
+  /// @notice However, I have successfully used web3.js Chainlink data feeds on the front-end
   /// @dev Use the following from command line to call this function
   /// @dev charity.getLatestPrice().then(function(x) { return x; });
-  function getLatestPrice() public view returns (int) {
+  function getLatestPrice() external view returns (int256) {
         (
             uint80 roundID,
             int price,
@@ -87,6 +92,13 @@ contract CryptoDonater {
     returns(bool)
   {
     catList.push(Category({catId: currentCatId, catName: _catName, catBalance: 0, catNeed: _catNeed}));
+    emit LogCreateCategory(
+      "Category Successfully Created",
+      catList[currentCatId].catId,
+      catList[currentCatId].catName,
+      catList[currentCatId].catBalance,
+      catList[currentCatId].catNeed
+    );
     currentCatId++;
     return true;
   }
@@ -102,6 +114,13 @@ contract CryptoDonater {
     returns(bool)
   {
     catList[_catId].catNeed += _catNeed;
+    emit LogNeedUpdated(
+      "Category Need Successfully Updated",
+      catList[_catId].catId,
+      catList[_catId].catName,
+      catList[_catId].catBalance,
+      catList[_catId].catNeed
+    );
     return true;
   }
 
@@ -119,7 +138,7 @@ contract CryptoDonater {
 
   /// @notice Send donation to category pool
   /// @dev Use the following from command line to call this function
-  /// @dev charity.sendDonation(4).then(function(x) { return x; });
+  /// @dev charity.sendDonation(1).then(function(x) { return x; });
   /// @param catId of the category pool. Txn should also have 'from' and 'value'.
   /// @return True to indicate success
   function sendDonation(uint catId)
@@ -132,6 +151,13 @@ contract CryptoDonater {
     /// @notice Decrements need of category pool till it reaches 0
     if(msg.value > catList[catId].catNeed) catList[catId].catNeed = 0;
     else catList[catId].catNeed-=msg.value;
+    emit LogNeedUpdated(
+      "Donation Successful",
+      catList[catId].catId,
+      catList[catId].catName,
+      catList[catId].catBalance,
+      catList[catId].catNeed
+    );
     return true;
   }
 
