@@ -1,4 +1,4 @@
-// Requires react 17.x and over for material-ui. Truffle Unbox React install react 16.x.
+// Requires react 17.x and over for material-ui. Truffle Unbox React installs react 16.x.
 import React, { Component } from "react";
 import CryptoDonater from "./contracts/CryptoDonater.json";
 import getWeb3 from "./getWeb3";
@@ -50,7 +50,7 @@ class App extends Component {
       const priceFeed = new web3oracle.eth.Contract(aggregatorV3InterfaceABI, addr)
       priceFeed.methods.latestRoundData().call()
           .then((roundData) => {
-              this.setState({usd: roundData.answer/100000000});
+              this.setState({usd: (roundData.answer/100000000).toFixed(2)});
               // console.log("Latest Round Data", roundData.answer/100000000)
           })
 
@@ -174,7 +174,7 @@ class App extends Component {
         let catList = [];
         await this.state.contract.methods
         .sendDonation(this.state.inputCategoryValue)
-        .send({ from: this.state.accounts[0], value: this.state.inputAmountValue })
+        .send({ from: this.state.accounts[0], value: Math.round(this.state.inputAmountValue) })
         .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}` )});
         for(let i=0; i<this.state.catListLength; i++) {
           const catValue = await this.state.contract.methods
@@ -239,7 +239,7 @@ class App extends Component {
         if(!this.state.inputCreateCategoryValueError && !this.state.inputCreateNeedAmountError) {
           let catList = [];
           await this.state.contract.methods
-          .createCategory(this.state.inputCreateCategoryValue, this.state.inputCreateNeedAmount)
+          .createCategory(this.state.inputCreateCategoryValue, Math.round(this.state.inputCreateNeedAmount))
           .send({ from: this.state.accounts[0] })
           .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}`)});
           const catListLength = await this.state.contract.methods.getCatListLength().call();
@@ -308,7 +308,7 @@ class App extends Component {
         if(!this.state.inputUpdateCategoryValueError && !this.state.inputUpdateNeedAmountError) {
           let catList = [];
           await this.state.contract.methods
-          .updateCategoryNeed(this.state.inputUpdateCategoryValue, this.state.inputUpdateNeedAmount)
+          .updateCategoryNeed(this.state.inputUpdateCategoryValue, Math.round(this.state.inputUpdateNeedAmount))
           .send({ from: this.state.accounts[0] })
           .catch((error) => { alert(`Transaction was NOT sent. Please try again, perhaps after resetting your account. ${'\n'} Error: ${error.message}`)});
           const catListLength = await this.state.contract.methods.getCatListLength().call();
@@ -432,10 +432,6 @@ class App extends Component {
         <hr style={{margin: '3vw'}}/>
 
         <h2>Charity Organization</h2>
-        <Typography align="left" style={{backgroundColor: '#ECECEC', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-          [Future Development]: Charity organization can initiate a transaction to transfer funds from the category pools to their respective org's address.
-        </Typography>
-
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
             If you wish to create a new category pool, please submit the form below. Click 'Create Category Pool' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. A new category will be created, its 'Balance' will be set to 0, and its 'Need' will be updated.
@@ -530,6 +526,19 @@ class App extends Component {
             </div>
           </div>
         </div>
+
+        <Typography align="left" style={{backgroundColor: '#ECECEC', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+          [Future Development]: Charity organization can initiate a transaction to transfer funds from the category pools to their respective org's address.
+        </Typography>
+
+        <hr style={{margin: '3vw'}}/>
+
+        <h2>Admin</h2>
+        <Typography align="left" style={{backgroundColor: '#ECECEC', marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
+          [Future Development] Admin (contract owner) can edit/update name of an existing category pool. Non-owners will not be able to do this.
+          However, the smart contract function has been implemented/tested already using OpenZeppelin's ownable access contract.
+        </Typography>
+
 
         <Bottom/>
 
