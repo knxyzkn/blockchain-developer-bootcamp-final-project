@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Accepts donations into category pools
 /// @author Kaushik Nagaraj
@@ -13,10 +14,10 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 /// @notice 6. Obtain the details (id, name, balance, need) of a given category pool
 /// @dev Once the contract is compile and deployed, use the following to run functions from command line
 /// @dev 1. let charity;
-/// @dev 2. CryptoDonater.at("0xA8a51239A735a6BA00d20e282d2A56Eae5439191").then(function(x) { charity = x });
+/// @dev 2. CryptoDonater.at("0x2B5F6651D420CA6738c36384E6eD2f4989621520").then(function(x) { charity = x });
 /// @dev 3. Then run the corresponding command for function of your choice (see @dev for each function below)
 
-contract CryptoDonater {
+contract CryptoDonater is Ownable{
 
   /// @notice Struct to capture ID, Name, Balance, and Need of a Category Pool.
   struct Category {
@@ -58,6 +59,7 @@ contract CryptoDonater {
   event LogCreateCategory(string message, uint catId, string catName, uint catBalance, uint catNeed);
   event LogNeedUpdated(string message, uint catId, string catName, uint catBalance, uint catNeed);
   event LogDonation(string message, uint catId, string catName, uint catBalance, uint catNeed);
+  event LogNameUpdated(string message, uint catId, string catName, uint catBalance, uint catNeed);
 
   /// @notice Modifier to ensure that _catId is >= 0 and < catList.length
   modifier catIdValidity(uint _catId) {
@@ -171,7 +173,7 @@ contract CryptoDonater {
 
   /// @notice Send donation to category pool
   /// @dev Use the following from command line to call this function
-  /// @dev charity.sendDonation(1).then(function(x) { return x; });
+  /// @dev charity.sendDonation(1, { value: 100 }).then(function(x) { return x; });
   /// @param catId of the category pool. Txn should also have 'from' and 'value'.
   /// @return True to indicate success
   function sendDonation(uint catId)
@@ -214,6 +216,31 @@ contract CryptoDonater {
     returns(string memory, uint, uint)
   {
     return (catList[catId].catName, catList[catId].catBalance, catList[catId].catNeed);
+  }
+
+  /// @notice Update the name of an existng category pool
+  /// @notice Can be done only by the owner of the contract
+  /// @notice Uses @openzeppelin's Ownable contract
+  /// @dev Use the following from command line to call this function
+  /// @dev charity.updateCategoryName(0, "Hello", { from: "0x0e92f8e98453b94535d1c8d2697d98c65e11156b"}).then(function(x) { return x; });
+  /// @param 1. catId of the existing category pool
+  /// @param 2. New catName that the existing name should be replaced with
+  /// @return True to indicate success
+  function updateCategoryName(uint catId, string memory catName)
+    public
+    onlyOwner
+    catIdValidity(catId)
+    returns(bool)
+  {
+    catList[catId].catName = catName;
+    emit LogNameUpdated(
+      "Category Name Update Successful",
+      catList[catId].catId,
+      catList[catId].catName,
+      catList[catId].catBalance,
+      catList[catId].catNeed
+    );
+    return true;
   }
 
   /// @notice Future Development: Send payabale transaction from smart contract to charity org address.

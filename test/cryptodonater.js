@@ -99,17 +99,6 @@ contract("CryptoDonater", accounts => {
     assert.equal(catItem[2], 0, "Donated category pool should have need 0.");
   });
 
-  // Testing need does not fall below 0 if donation is greater than need
-  // it("...should get latest price.", async () => {
-  //   const cryptoDonaterInstance = await CryptoDonater.deployed();
-  //
-  //   // Send donation an existing category pool
-  //   const price = await cryptoDonaterInstance.getLatestPrice();
-  //   console.log(price);
-  //   assert.equal(price, , "Latest Chainlink price.");
-  //
-  // });
-
   // Testing that invalid catId reverts
   it("...should revert if catId is invalid.", async () => {
     const cryptoDonaterInstance = await CryptoDonater.deployed();
@@ -127,6 +116,38 @@ contract("CryptoDonater", accounts => {
 
     await catchRevert(cryptoDonaterInstance.sendDonation(catListLength, { from: accounts[0], value: 1000}));
     await catchRevert(cryptoDonaterInstance.sendDonation(catListLength+3, { from: accounts[0], value: 1000}));
+  });
+
+  // Testing updating name of an existing category pool when initiated by owner
+  it("...should update name of an existing category pool when initiated by owner.", async () => {
+    const cryptoDonaterInstance = await CryptoDonater.deployed();
+
+    // Update the name of an existing category pool
+    // Transaction initiated by owner
+    await cryptoDonaterInstance.updateCategoryName(1, "Research and Development", { from: accounts[0] });
+
+    // Get the length of the category pool list
+    const catListLength = await cryptoDonaterInstance.getCatListLength();
+    assert.equal(catListLength, 2, "Length of the category pool list should be 2.");
+
+    // Get the details of the updated category pool
+    const catItem = await cryptoDonaterInstance.getCatValues(1);
+    assert.equal(catItem[0], "Research and Development", "Updated category pool should have name 'Research and Development'.");
+    assert.equal(catItem[1], 1200, "Updated category pool should have balance 1200.");
+    assert.equal(catItem[2], 0, "Updated category pool should have need 0.");
+  });
+
+  // Testing updating name of an existing category pool when initiated by non-owner
+  it("...should not update name of an existing category pool when initiated by non-owner.", async () => {
+    const cryptoDonaterInstance = await CryptoDonater.deployed();
+
+    // Get the length of the category pool list
+    const catListLength = await cryptoDonaterInstance.getCatListLength();
+    assert.equal(catListLength, 2, "Length of the category pool list should be 2.");
+
+    // Do not update the name of an existing category pool
+    // Transaction initiated by non-owner
+    await catchRevert(cryptoDonaterInstance.updateCategoryName(1, "Research and Development", { from: accounts[1] }));
   });
 
   // Testing whether LogCreateCategory event is emitted accurately
@@ -163,7 +184,7 @@ contract("CryptoDonater", accounts => {
   });
 
   // Testing whether LogNeedUpdated event is emitted accurately
-  it("...should emit a LogNeedUpdated event when an new category pool is created.", async () => {
+  it("...should emit a LogNeedUpdated event when need of an existing category pool is updated.", async () => {
     const cryptoDonaterInstance = await CryptoDonater.deployed();
 
     // Update need of an existing category pool
@@ -196,7 +217,7 @@ contract("CryptoDonater", accounts => {
   });
 
   // Testing whether LogDonation event is emitted accurately
-  it("...should emit a LogDonation event when an new category pool is created.", async () => {
+  it("...should emit a LogDonation event when donation is sent to an existing category pool.", async () => {
     const cryptoDonaterInstance = await CryptoDonater.deployed();
 
     // Send donation to an existing category pool
@@ -225,6 +246,39 @@ contract("CryptoDonater", accounts => {
       result.logs[0].args.catNeed,
       700,
       "LogDonation event 'catNeed' property not emitted.",
+    );
+  });
+
+  // Testing whether LogNameUpdated event is emitted accurately
+  it("...should emit a LogNameUpdated event when name of an existing category pool is updated.", async () => {
+    const cryptoDonaterInstance = await CryptoDonater.deployed();
+
+    // Send donation to an existing category pool
+    const result = await cryptoDonaterInstance.updateCategoryName(2, "Travel Expenses", { from: accounts[0] });
+    assert.equal(
+      result.logs[0].args.message,
+      "Category Name Update Successful",
+      "LogNameUpdated event 'message' property not emitted.",
+    );
+    assert.equal(
+      result.logs[0].args.catId,
+      2,
+      "LogNameUpdated event 'catId' property not emitted.",
+    );
+    assert.equal(
+      result.logs[0].args.catName,
+      "Travel Expenses",
+      "LogNameUpdated event 'catName' property not emitted.",
+    );
+    assert.equal(
+      result.logs[0].args.catBalance,
+      200,
+      "LogNameUpdated event 'catBalance' property not emitted.",
+    );
+    assert.equal(
+      result.logs[0].args.catNeed,
+      700,
+      "LogNameUpdated event 'catNeed' property not emitted.",
     );
   });
 
