@@ -59,6 +59,33 @@ contract CryptoDonater {
   event LogNeedUpdated(string message, uint catId, string catName, uint catBalance, uint catNeed);
   event LogDonation(string message, uint catId, string catName, uint catBalance, uint catNeed);
 
+  /// @notice Modifier to ensure that _catId is >= 0 and < catList.length
+  modifier catIdValidity(uint _catId) {
+    require(
+      _catId >= 0 && _catId < catList.length,
+      "Category ID should be >= 0 and < catList.length"
+    );
+    _;
+  }
+
+  /// @notice Modifier to ensure that _catNeed is greater or equal to 0
+  modifier catNeedValidity(uint _catNeed) {
+    require(
+      _catNeed >= 0,
+      "Category Need should be >= 0"
+    );
+    _;
+  }
+
+  /// @notice Modifier to ensure that donation (msg.value) is greater or equal to 0
+  modifier donationValidity() {
+    require(
+      msg.value >= 0,
+      "Donation (msg.value) should be >= 0"
+    );
+    _;
+  }
+
   /// @notice Initializes ID and Chainlink pricefeed
   constructor() public {
     currentCatId = catList.length;
@@ -70,7 +97,7 @@ contract CryptoDonater {
   /// @notice However, I have successfully used web3.js Chainlink data feeds on the front-end
   /// @dev Use the following from command line to call this function
   /// @dev charity.getLatestPrice().then(function(x) { return x; });
-  function getLatestPrice() external view returns (int256) {
+  function getLatestPrice() external view returns (int) {
         (
             uint80 roundID,
             int price,
@@ -89,9 +116,11 @@ contract CryptoDonater {
   /// @return True to indicate success
   function createCategory(string memory _catName, uint _catNeed)
     public
+    catNeedValidity(_catNeed)
     returns(bool)
   {
     catList.push(Category({catId: currentCatId, catName: _catName, catBalance: 0, catNeed: _catNeed}));
+    assert(catList[currentCatId].catBalance == 0);
     emit LogCreateCategory(
       "Category Successfully Created",
       catList[currentCatId].catId,
@@ -111,9 +140,13 @@ contract CryptoDonater {
   /// @return True to indicate success
   function updateCategoryNeed(uint _catId, uint _catNeed)
     public
+    catIdValidity(_catId)
+    catNeedValidity(_catNeed)
     returns(bool)
   {
+    uint oldCatNeed = catList[_catId].catNeed;
     catList[_catId].catNeed += _catNeed;
+    assert(catList[_catId].catNeed >= oldCatNeed);
     emit LogNeedUpdated(
       "Category Need Successfully Updated",
       catList[_catId].catId,
@@ -144,14 +177,20 @@ contract CryptoDonater {
   function sendDonation(uint catId)
     public
     payable
+    donationValidity()
+    catIdValidity(catId)
     returns(bool)
   {
     /// @notice Increments balance of category pool
+    uint oldCatBalance = catList[catId].catBalance;
     catList[catId].catBalance+=msg.value;
+    assert(catList[catId].catBalance >= oldCatBalance);
     /// @notice Decrements need of category pool till it reaches 0
+    uint oldCatNeed = catList[catId].catNeed;
     if(msg.value > catList[catId].catNeed) catList[catId].catNeed = 0;
     else catList[catId].catNeed-=msg.value;
-    emit LogNeedUpdated(
+    assert(catList[catId].catNeed >= 0 && catList[catId].catNeed <= oldCatNeed);
+    emit LogDonation(
       "Donation Successful",
       catList[catId].catId,
       catList[catId].catName,
@@ -171,6 +210,7 @@ contract CryptoDonater {
   function getCatValues(uint catId)
     public
     view
+    catIdValidity(catId)
     returns(string memory, uint, uint)
   {
     return (catList[catId].catName, catList[catId].catBalance, catList[catId].catNeed);
