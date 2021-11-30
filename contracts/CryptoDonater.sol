@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+// import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Accepts donations into category pools
@@ -53,7 +53,7 @@ contract CryptoDonater is Ownable{
   // mapping(address => Donor) public donorList;
 
   /// @notice Interface declaration for Chainlink data feeds
-  AggregatorV3Interface internal priceFeed;
+  // AggregatorV3Interface internal priceFeed;
 
   /// @notice Create events to be emitted whenever there are state changes
   event LogCreateCategory(string message, uint catId, string catName, uint catBalance, uint catNeed);
@@ -91,7 +91,7 @@ contract CryptoDonater is Ownable{
   /// @notice Initializes ID and Chainlink pricefeed
   constructor() public {
     currentCatId = catList.length;
-    priceFeed = AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
+    // priceFeed = AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
   }
 
   /// @notice Get the Ether to USD conversion price from Chainlink data feeds
@@ -99,16 +99,16 @@ contract CryptoDonater is Ownable{
   /// @notice However, I have successfully used web3.js Chainlink data feeds on the front-end
   /// @dev Use the following from command line to call this function
   /// @dev charity.getLatestPrice().then(function(x) { return x; });
-  function getLatestPrice() external view returns (int) {
-        (
-            uint80 roundID,
-            int price,
-            uint startedAt,
-            uint timeStamp,
-            uint80 answeredInRound
-        ) = priceFeed.latestRoundData();
-        return price;
-    }
+  // function getLatestPrice() external view returns (int) {
+  //       (
+  //           uint80 roundID,
+  //           int price,
+  //           uint startedAt,
+  //           uint timeStamp,
+  //           uint80 answeredInRound
+  //       ) = priceFeed.latestRoundData();
+  //       return price;
+  //   }
 
   /// @notice Create a new category pool
   /// @dev Use the following from command line to call this function
