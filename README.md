@@ -4,14 +4,14 @@
 
 1. Donors can donate crypto to category pools (such as R&D, Admin, Logistics, Technology, etc.) held in the smart contract.
 2. Charity organizations can transfer funds from the smart contract to their charity organization's address when the need arises.
-3. If the balance of a category pool is insufficent, then charity orgs can update need so that donors can donate to category pools accordingly. Charity orgs can also create new category pools.
+3. If the balance of a category pool is insufficient, then charity orgs can update need so that donors can donate to category pools accordingly. Charity orgs can also create new category pools.
 4. Admin can update name of an existing category pool.
 
 Note: Effort has been made to communicate the above through the Dapp UI with descriptive text where appropriate.
 
 ## Link to Dapp
 
-URL: https://final-project-jsur.vercel.app
+URL: https://crypto-donater.vercel.app/
 
 ## User Journey
 
@@ -29,7 +29,7 @@ URL: https://final-project-jsur.vercel.app
 
 1. **Charity Organization**: Initiate transfer of funds from smart contract to org's address for a given category pool.
 2. **Admin**: Implement on UI the ability to update names of category pools.
-3. **Data Feeds**: Implement Chainlink's ETH/USD data feeds. Attempted in both Solidity and Web3.js, but unsuccessful.
+3. **Data Feeds**: Implement Chainlink's ETH/USD data feeds for real-time conversion rates. Attempted in Solidity and Web3.js, but unsuccessful.
 
 ## Dapp Architecture
 
@@ -87,11 +87,11 @@ URL: https://final-project-jsur.vercel.app
 
 ## Screencast link
 
-TBD https://youtu.be/enwECpgoQUg
+https://www.loom.com/share/ea8dd8f2c8cf47b4aeaa152f78dd2a0b
 
 ## Ethereum Account for Certification:
 
-TBD `0x109B58ED673Bb241d170b87e4F88c5f426781fC9`
+`0xD88D5F94B9a10fC6AB4e29A7dB18E49b9Af64979`
 
 ## Directory Structure
 

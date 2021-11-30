@@ -367,7 +367,7 @@ class App extends Component {
 
         <div>
           <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. 'Balance' will be incremented and 'Need' will be decremented. USD conversion rate is obtained in real-time from Chainlink data feeds.
+            Enter the category pool and amount. Click 'Donate' to initiate a transaction. Once the transaction is complete, please check the category pool table above for updated values. 'Balance' will be incremented and 'Need' will be decremented.
           </Typography>
 
           <div>

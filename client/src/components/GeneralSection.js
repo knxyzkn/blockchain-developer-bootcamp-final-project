@@ -20,7 +20,7 @@ class GeneralSection extends Component {
           Charity organizations can transfer funds from the smart contract to their charity org address when the need arises.
         </Typography>
         <Typography align="left" style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}>
-          If the balance of a category pool is insufficent, then charity orgs can update need so that donors can donate to category pools accordingly.
+          If the balance of a category pool is insufficient, then charity orgs can update need so that donors can donate to category pools accordingly.
         </Typography>
         <div>
           <TextField
