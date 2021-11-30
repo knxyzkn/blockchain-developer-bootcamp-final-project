@@ -35,7 +35,7 @@ class App extends Component {
     inputUpdateCategoryValueError: false,
     inputUpdateNeedAmount: "",
     inputUpdateNeedAmountError: false,
-    usd: null
+    usd: 4440.00
   };
 
   componentDidMount = async () => {
@@ -44,15 +44,15 @@ class App extends Component {
     try {
 
       // Chainlink Data Feeds for ETH/USD coversion rates
-      const web3oracle = new Web3(`https://rinkeby.infura.io/v3/${process.env.RINKEBY_INFURA_PROJECT_ID}`);
-      const aggregatorV3InterfaceABI = [{ "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];
-      const addr = "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e";
-      const priceFeed = new web3oracle.eth.Contract(aggregatorV3InterfaceABI, addr);
-      priceFeed.methods.latestRoundData().call()
-          .then((roundData) => {
-              this.setState({usd: (roundData.answer/100000000).toFixed(2)});
-              // console.log("Latest Round Data", roundData.answer/100000000)
-          })
+      // const web3oracle = new Web3(`https://rinkeby.infura.io/v3/${process.env.RINKEBY_INFURA_PROJECT_ID}`);
+      // const aggregatorV3InterfaceABI = [{ "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];
+      // const addr = "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e";
+      // const priceFeed = new web3oracle.eth.Contract(aggregatorV3InterfaceABI, addr);
+      // priceFeed.methods.latestRoundData().call()
+      //     .then((roundData) => {
+      //         this.setState({usd: (roundData.answer/100000000).toFixed(2)});
+      //         // console.log("Latest Round Data", roundData.answer/100000000)
+      //     })
 
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
@@ -405,7 +405,7 @@ class App extends Component {
               style={{marginLeft: '3vw', marginRight: '3vw', marginBottom: '20px'}}
             />
             <TextField
-              id="enter-amount"
+              id="usd-amount"
               label="Amount in USD"
               variant="outlined"
               required
