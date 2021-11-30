@@ -8,7 +8,7 @@ import NotWeb3 from "./components/NotWeb3.js";
 import GeneralSection from "./components/GeneralSection.js";
 import Bottom from "./components/Bottom.js";
 
-import Web3 from "web3";
+// import Web3 from "web3";
 
 import "./App.css";
 
