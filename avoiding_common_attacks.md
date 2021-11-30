@@ -5,7 +5,7 @@ Used `pragma solidity ^0.8.0` to indicate the lowest compiler version so as to e
 
 ## Proper Use of require, assert, and revert
 Used `require` to perform validations of input parameters in functions.
-Used '`assert` to validate situations that should never happen, especially after state changes. Used this towards the end of functions.
+Used `assert` to validate situations that should never happen, especially after state changes. Used this towards the end of functions.
 
 ## Use Modifiers Only for Validation
 Used function modifiers to only perform validations of input parameters.

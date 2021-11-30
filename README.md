@@ -19,7 +19,7 @@ URL: https://final-project-jsur.vercel.app
 2. You will see an intro page. Follow the instructions. Open MetaMask and connect your account (please select Rinkeby Test Network).
 3. You'll be taken to the main page. Read through the descriptive text.
 4. Review the Category Pool Table.
-5. **Donor**: If you're a donor, you can donate by following the instructions to submit the form. A transaction will be initiated when you click 'Donate,' assuming all validations pass. Once the transaction is complete, the category pool table will update with the latest values read from the blockchain. Used Chainlink's ETH/USD data feed from web3.js to display conversions.
+5. **Donor**: If you're a donor, you can donate by following the instructions to submit the form. A transaction will be initiated when you click 'Donate,' assuming all validations pass. Once the transaction is complete, the category pool table will update with the latest values read from the blockchain.
 6. **Charity Organization**: If you're a charity organization, you can perform the below mentioned actions. In both cases, please follow the instructions to submit the form. A transaction will be initiated when you click 'Create Category Pool' or 'Update Category Need,' assuming all validations pass. Once the transaction is complete, the category pool table will update with the latest values read from the blockchain.
   - Create a new category pool.
   - Update the need of an existing category pool.
@@ -29,7 +29,7 @@ URL: https://final-project-jsur.vercel.app
 
 1. **Charity Organization**: Initiate transfer of funds from smart contract to org's address for a given category pool.
 2. **Admin**: Implement on UI the ability to update names of category pools.
-3. **Data Feeds**: Chainlink's ETH/USD data feeds have been implemented already from web3.js. Implement the same from Solidity.
+3. **Data Feeds**: Implement Chainlink's ETH/USD data feeds. Attempted in both Solidity and Web3.js, but unsuccessful.
 
 ## Dapp Architecture
 
