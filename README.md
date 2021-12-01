@@ -11,7 +11,7 @@ Note: Effort has been made to communicate the above through the Dapp UI with des
 
 ## Link to Dapp
 
-URL: https://crypto-donater.vercel.app/
+Link: https://crypto-donater.vercel.app/
 
 ## User Journey
 
@@ -21,8 +21,8 @@ URL: https://crypto-donater.vercel.app/
 4. Review the Category Pool Table.
 5. **Donor**: If you're a donor, you can donate by following the instructions to submit the form. A transaction will be initiated when you click 'Donate,' assuming all validations pass. Once the transaction is complete, the category pool table will update with the latest values read from the blockchain.
 6. **Charity Organization**: If you're a charity organization, you can perform the below mentioned actions. In both cases, please follow the instructions to submit the form. A transaction will be initiated when you click 'Create Category Pool' or 'Update Category Need,' assuming all validations pass. Once the transaction is complete, the category pool table will update with the latest values read from the blockchain.
-  - Create a new category pool.
-  - Update the need of an existing category pool.
+  a. Create a new category pool.
+  b. Update the need of an existing category pool.
 7. **Admin**: If you're the admin (the owner of the smart contract), you can update the names of the category pools. This has not yet been implemented on the UI, but it has been implemented/tested as a function in the smart contract. Used OpenZeppelin's Ownable contract.
 
 ## Future Development
@@ -36,6 +36,7 @@ URL: https://crypto-donater.vercel.app/
 - Blockchain: **Ethereum**
 - Smart Contracts: **Solidity**
 - Development Framework: **Truffle**
+- Ethereum Gateway Service: **Infura**
 - Dapp Framework: **React Box in Truffle**
 - Frontend: **React**
 - UI Components: **Material-UI**
@@ -89,9 +90,9 @@ URL: https://crypto-donater.vercel.app/
 
 https://www.loom.com/share/ea8dd8f2c8cf47b4aeaa152f78dd2a0b
 
-## Ethereum Account for Certification:
+## Ethereum Account for Certification
 
-`0xD88D5F94B9a10fC6AB4e29A7dB18E49b9Af64979`
+Account Address: `0xD88D5F94B9a10fC6AB4e29A7dB18E49b9Af64979`
 
 ## Directory Structure
 
